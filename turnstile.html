@@ -3,11 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- Correct CSP: allow Cloudflare scripts -->
+  <meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self' https://challenges.cloudflare.com 'unsafe-inline';
+  frame-src https://challenges.cloudflare.com;
+  style-src 'self' 'unsafe-inline';
+  connect-src https://challenges.cloudflare.com;
+">
 
-  <!-- Content Security Policy -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline';">
 
   <title>Cloudflare Turnstile CAPTCHA</title>
+
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
   <style>
@@ -21,16 +29,24 @@
     }
   </style>
 </head>
+
 <body>
-  <div class="cf-turnstile"
-    data-sitekey="0x4AAAAAAA5XecdrNWrpvqgy"  <!-- Replace with your site key -->
-  </div>
+  <div id="captcha-container"></div>
 
   <script>
     function onVerify(token) {
-      window.ReactNativeWebView?.postMessage(token);  
-      window.parent?.postMessage(token, '*');         
+      console.log('Captcha token:', token);
+      window.ReactNativeWebView?.postMessage(token);
+    }
+
+    window.onload = function() {
+      turnstile.render('#captcha-container', {
+        sitekey: '0x4AAAAAAA5XecdrNWrpvqgy', // replace with your real key
+        callback: onVerify,
+        theme: 'light'
+      });
     }
   </script>
 </body>
 </html>
+
